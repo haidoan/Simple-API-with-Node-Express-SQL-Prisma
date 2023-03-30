@@ -1,5 +1,10 @@
-Simple API with Nodejs,Express,SQL, Prisma ORM
-
+Simple API with Nodejs,Express,SQL (Prisma ORM)
+What is inside
+- Node v16.16.0
+- ExpressJS
+- MySQL 8.0
+- Prisma.io
+For simplicity of development I use the [Prisma.io](https://www.prisma.io) ORM 
 # Install
 - install : `npm i`
 - run `docker-compose` to spin up SQL server: `docker-compose up`
