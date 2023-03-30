@@ -1,0 +1,98 @@
+generator client {
+    provider = "prisma-client-js"
+}
+
+datasource db {
+    provider = "mysql"
+    url      = env("DATABASE_URL")
+}
+
+model match {
+    id              String       @id @default(uuid())
+    home_team       team         @relation("home_team", fields: [home_team_id], references: [id])
+    away_team       team         @relation("away_team", fields: [away_team_id], references: [id])
+    name            String
+    tournament      tournament?  @relation(fields: [tournament_id], references: [id])
+    stadium         stadium?     @relation(fields: [stadium_id], references: [id])
+    round           String?
+    type            MATCH_TYPE   @default(FRIENDLY)
+    status          MATCH_STATUS @default(ACTIVE)
+    home_team_id    String
+    away_team_id    String
+    home_team_score Int          @default(0)
+    away_team_score Int          @default(0)
+    scorers         scorer[]
+    play_at         DateTime
+    created_at      DateTime     @default(now())
+    updated_at      DateTime?
+    deleted_at      DateTime?
+    tournament_id   String?
+    stadium_id      String?
+}
+
+model team {
+    id         String    @id @default(uuid())
+    name       String    @unique
+    short_name String    @unique
+    nation     String
+    logo       String
+    home_team  match[]   @relation("home_team")
+    away_team  match[]   @relation("away_team")
+    created_at DateTime  @default(now())
+    updated_at DateTime?
+    deleted_at DateTime?
+    scorer     scorer[]
+}
+
+model scorer {
+    id         String    @id @default(uuid())
+    name       String
+    position   String
+    team       team      @relation(fields: [team_id], references: [id])
+    team_id    String
+    match      match     @relation(fields: [match_id], references: [id])
+    match_id   String
+    minute     Int
+    created_at DateTime  @default(now())
+    updated_at DateTime?
+    deleted_at DateTime?
+}
+
+model tournament {
+    id         String    @id @default(uuid())
+    name       String    @unique
+    logo       String
+    created_at DateTime  @default(now())
+    updated_at DateTime?
+    deleted_at DateTime?
+    match      match[]
+}
+
+model stadium {
+    id         String    @id @default(uuid())
+    name       String    @unique
+    created_at DateTime  @default(now())
+    updated_at DateTime?
+    deleted_at DateTime?
+    match      match[]
+}
+
+model calendar {
+    id         String    @id @default(uuid())
+    date       DateTime  @unique
+    created_at DateTime  @default(now())
+    updated_at DateTime?
+    deleted_at DateTime?
+}
+
+enum MATCH_TYPE {
+    FRIENDLY
+    COMPETITION
+}
+
+enum MATCH_STATUS {
+    ACTIVE
+    PLAYING
+    COMPLETED
+    POSTPONE
+}

@@ -1,0 +1,231 @@
+openapi: 3.0.1
+info:
+  title: Simple API
+  description: "APIs document for football fixture"
+  contact:
+    email: hello@abc.com
+  version: 1.0.0
+externalDocs:
+  description: Find out more about Swagger
+  url: http://swagger.io
+servers:
+  - url: http://localhost:4000
+
+tags:
+  - name: Fixture
+    description: Fixture
+paths:
+  /fixture:
+    get:
+      tags:
+        - Fixture
+      summary: Fixture
+      description: Get matches within a period of time
+      parameters:
+        - name: from_date
+          in: query
+          description: Starting date to get fixture
+          required: true
+          schema:
+            type: string
+            format: date-time
+            example: "2023-03-30T17:00:00.000Z"
+        - name: duration
+          in: query
+          description: Duration time count from the `from_date` to get matchs. Default will 1 day, maximum 7 days
+          required: true
+          schema:
+            type: integer
+            default: 1
+        - name: page
+          in: query
+          description: Page index
+          schema:
+            type: number
+            default: 1
+        - name: limit
+          in: query
+          description: Page size
+          schema:
+            type: number
+            example: 10
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Match"
+                  page:
+                    type: number
+                    description: page index
+                  limit:
+                    type: number
+                    description: number of item each page
+                  total:
+                    type: number
+                    description: total number of item in db
+                  next:
+                    type: string
+                    description: next page link
+        401:
+          description: Unauthorized
+        403:
+          description: Invalid input
+        500:
+          description: Server unpexted error
+  /fixture/calendar:
+    get:
+      tags:
+        - Fixture
+      summary: Fixture Calendar
+      description: Get list of days in a period of time which there is game is played on
+      parameters:
+        - name: from_date
+          in: query
+          description: Starting date to retrieve data, its either FIRST day of a YEAR or MONTH
+          required: true
+          schema:
+            type: string
+            format: date-time
+            example: "2023-01-01T17:00:00.000Z"
+        - name: mode
+          in: query
+          required: true
+          description: This property allow client to get match within a 'year' or a 'month'
+          schema:
+            type: string
+            enum:
+              - month
+              - year
+            default: month
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: object
+                    description: date that has match will be present on the object
+                    example: { "2023-03-28": true, "2023-03-29": true }
+        401:
+          description: Unauthorized
+        403:
+          description: Invalid input
+        500:
+          description: Server unpexted error
+components:
+  schemas:
+    Match:
+      required:
+        - name
+        - home_team
+        - away_team
+        - play_at
+      type: object
+      properties:
+        id:
+          type: string
+          description: aaa
+          format: int8
+          example: 0
+        home_team:
+          $ref: "#/components/schemas/Team"
+        away_team:
+          $ref: "#/components/schemas/Team"
+        play_at:
+          type: string
+          description: yyyy-mm-dd
+          example: "2020-07-12"
+        tournament:
+          type: string
+          description: tournament name
+          example: EPL
+        home_team_score:
+          type: integer
+          example: 1
+        away_team_score:
+          type: integer
+          example: 2
+        type:
+          type: string
+          enum:
+            - FRIENDLY
+            - COMPETITION
+          default: FRIENDLY
+      xml:
+        name: Match
+    Team:
+      required:
+        - name
+        - short_name
+      type: object
+      properties:
+        name:
+          type: string
+        short_name:
+          type: string
+        nation:
+          type: string
+          example: VN
+        logo:
+          type: string
+      xml:
+        name: Team
+    Tournament:
+      required:
+        - phone
+        - password
+      type: object
+      properties:
+        name:
+          type: string
+          example: EPL
+      xml:
+        name: Tournament
+    Scorer:
+      required:
+        - email
+        - name
+      type: object
+      properties:
+        name:
+          type: string
+        postion:
+          type: string
+        team_id:
+          type: string
+        match_id:
+          type: integer
+        minute:
+          description: score at minute
+          type: string
+      xml:
+        name: Scorer
+    ApiResponse:
+      type: object
+      properties:
+        status:
+          type: string
+          example: success
+    Error:
+      type: object
+      properties:
+        error:
+          type: string
+          enum:
+            - USER
+            - GAME
+            - COURT
+        errormsg:
+          type: string
+      xml:
+        name: Error
