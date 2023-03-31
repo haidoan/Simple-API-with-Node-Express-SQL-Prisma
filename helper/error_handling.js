@@ -4,6 +4,11 @@ const env = process.env.NODE_ENV
  * Error handling middleware.
  */
 
+const saveErrorLogDB = async (error) => {
+    // TODO: save and notify developer about error
+    console.log(`Error is saved ${error.message}`)
+}
+
 module.exports = async (error, req, res, next) => {
     try {
         const now = new Date()
@@ -13,6 +18,9 @@ module.exports = async (error, req, res, next) => {
                 error
             })
         }
+        // Save unexpected error
+        await saveErrorLogDB(error)
+
         return res.status(500).send({
             error: 'CONTACT_SUPPORT'
         })
